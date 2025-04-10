@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Receipt</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" type="image/svg+xml" href="images/icon.svg">
+</head>
+<body class="bg-orange-50 min-h-screen relative p-4">
+
+  <button onclick="window.location.href='index.html'"
+    class="absolute top-4 left-4 bg-yellow-900 text-white text-sm px-4 py-2 rounded hover:bg-yellow-800 z-10">
+    Back to Home
+  </button>
+
+  <div class="flex items-center justify-center min-h-screen">
+    <div id="receipt-container" class="bg-white shadow-lg rounded-lg max-w-md w-full p-6"></div>
+  </div>
+
+  <script>
+    const receipt = JSON.parse(localStorage.getItem("receiptData"));
+
+    if (!receipt) {
+      document.getElementById("receipt-container").innerHTML = "<p>No receipt data found.</p>";
+    } else {
+      const { order, total, cash, change, timestamp } = receipt;
+      const products = [
+        { name: "White Dream", price: 75 },
+        { name: "Red Velvet", price: 75 },
+        { name: "Choco Classic", price: 70 },
+        { name: "Raspberry Turnover", price: 85 },
+        { name: "Hazelnut Swirl", price: 80 },
+        { name: "Cream Puff", price: 65 },
+        { name: "Strawberry Danish", price: 85 },
+        { name: "Chocolate Croissant", price: 80 },
+        { name: "Butter Croissant", price: 70 },
+        { name: "Café Latte", price: 120 },
+        { name: "Caramel Cappuccino", price: 130 },
+        { name: "Hot Chocolate", price: 110 },
+        { name: "Iced Vanilla Latte", price: 125 },
+        { name: "Strawberry Fizz", price: 135 },
+        { name: "Iced Matcha Latte", price: 135 }
+      ];
+
+      let html = `
+        <div class="text-center mb-6">
+          <img src="images/logo_name.svg" alt="Sweet Puff" class="mx-auto w-25 h-25"/>
+          <p class="text-2xl font-bold font-serif text-yellow-900">Receipt</p>
+          <p class="text-sm text-gray-600">${timestamp}</p>
+        </div>
+        <table class="w-full text-sm border-t border-b border-gray-300 mb-4">
+          <thead>
+            <tr class="text-left">
+              <th class="py-1">Item</th>
+              <th class="py-1 text-center">Qty</th>
+              <th class="py-1 text-center">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      order.forEach(item => {
+        const product = products[item.index];
+        const subtotal = product.price * item.quantity;
+        html += `
+          <tr class="border-t border-gray-200">
+            <td class="py-1">${product.name}</td>
+            <td class="py-1 text-center">${item.quantity}</td>
+            <td class="py-1 text-center">₱${subtotal}</td>
+          </tr>
+        `;
+      });
+
+      html += `
+          </tbody>
+        </table>
+        <div class="text-sm text-right pr-4 space-y-1">
+          <p><strong>Total: ₱${total}</strong></p>
+          <p>Cash: ₱${cash}</p>
+          <p>Change: ₱${change}</p>
+        </div>
+        <p class="mt-6 mb-2 text-center text-yellow-900 font-semibold font-serif">Thank you for ordering!</p>
+        <img src="images/icon.svg" alt="Icon" class="mx-auto w-18 h-16"/>
+      `;
+
+      document.getElementById("receipt-container").innerHTML = html;
+    }
+  </script>
+</body>
+</html>

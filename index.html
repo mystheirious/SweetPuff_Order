@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Order</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" type="image/svg+xnl" href="images/icon.svg">
+</head>
+<body class="bg-orange-50">
+  <div class="max-w-7xl mx-auto p-6">
+    <div class="bg-white rounded-2xl shadow-2xl p-6 flex flex-col lg:flex-row gap-6">
+
+      <div class="w-full lg:w-4/6">
+        <img src="images/logo.svg" alt="Sweet Puff Logo" class="h-12 w-auto mb-2 mt-2">
+        <div class="flex justify-between items-center">
+          <p class="mt-4 text-3xl font-serif font-semibold text-yellow-900">Menu</p>
+          <div class="filter-buttons mt-4 font-serif flex flex-wrap gap-2 justify-center lg:justify-start text-sm">
+            <button onclick="filterMenu('all', this)" class="filter-btn shadow-inner px-4 py-2 rounded transition-all duration-300 hover:bg-rose-100 bg-rose-50">All</button>
+            <button onclick="filterMenu('cookies', this)" class="filter-btn shadow-inner px-4 py-2 rounded transition-all duration-300 hover:bg-rose-100">Cookies</button>
+            <button onclick="filterMenu('puffs', this)" class="filter-btn shadow-inner px-4 py-2 rounded transition-all duration-300 hover:bg-rose-100">Puffs</button>
+            <button onclick="filterMenu('drinks', this)" class="filter-btn shadow-inner px-4 py-2 rounded transition-all duration-300 hover:bg-rose-100">Drinks</button>
+          </div>
+        </div>
+        <div id="product-list" class="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-8"></div>
+      </div>
+
+      <div class="w-full lg:w-2/6 bg-orange-50 rounded-xl p-5 shadow-inner">
+        <p class="text-2xl font-serif font-semibold mb-4 text-yellow-900">Ordered Items</p>
+        <div id="order-summary" class="space-y-2 mb-4 pr-2 max-h-72 overflow-y-auto"></div>
+        <p class="text-lg font-semibold">Total: ₱<span id="total">0</span></p>
+        <div class="mt-4">
+          <label for="cash" class="block mb-1 text-md font-medium text-yellow-900">Cash</label>
+          <input type="number" id="cash" class="w-full border rounded px-3 py-2 focus:outline-none" placeholder="Enter cash amount">
+        </div>
+        <button onclick="placeOrder()" class="mt-4 w-full bg-yellow-900 hover:bg-yellow-800 text-white font-semibold py-2 px-4 rounded-lg transition">
+          Place Order
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const products = [
+      { name: "White Dream", price: 75, category:"cookies", image: "images/cm1.png" },
+      { name: "Red Velvet", price: 75, category:"cookies", image: "images/cm2.png" },
+      { name: "Choco Classic", price: 70, category:"cookies", image: "images/cm3.png" },
+      { name: "Raspberry Turnover", price: 85, category:"puffs", image: "images/pm1.png" },
+      { name: "Hazelnut Swirl", price: 80, category:"puffs", image: "images/pm2.png" },
+      { name: "Cream Puff", price: 65, category:"puffs", image: "images/pm3.png" },
+      { name: "Strawberry Danish", price: 85, category:"puffs", image: "images/pm4.png" },
+      { name: "Chocolate Croissant", price: 80, category:"puffs", image: "images/pm5.png" },
+      { name: "Butter Croissant", price: 70, category:"puffs", image: "images/pm6.png" },
+      { name: "Café Latte", price: 120, category:"drinks", image: "images/d1.png" },
+      { name: "Caramel Cappuccino", price: 130, category:"drinks", image: "images/d2.png" },
+      { name: "Hot Chocolate", price: 110, category:"drinks", image: "images/d3.png" },
+      { name: "Iced Vanilla Latte", price: 125, category:"drinks", image: "images/d4.png" },
+      { name: "Strawberry Fizz", price: 135, category:"drinks", image: "images/d5.png" },
+      { name: "Iced Matcha Latte", price: 135, category:"drinks", image: "images/d6.png" },
+    ];
+
+    const productList = document.querySelector("#product-list");
+    const orderSummary = document.querySelector("#order-summary");
+    const totalDisplay = document.querySelector("#total");
+
+    let order = [];
+    let filteredProducts = products;
+    let categoryIndices = 0; 
+
+    function filterMenu(category, button) {
+      const buttons = document.querySelectorAll('.filter-btn');
+      buttons.forEach(btn => {
+        btn.classList.remove('bg-rose-50');
+      });
+      button.classList.add('bg-rose-50');
+      
+      if (category === 'all') {
+        filteredProducts = products;
+        categoryIndices = 0;
+      } else {
+        filteredProducts = products.filter(product => product.category === category);
+        
+        if (category === 'cookies') {
+          categoryIndices = 0;
+        } else if (category === 'puffs') {
+          categoryIndices = 3; 
+        } else if (category === 'drinks') {
+          categoryIndices = 9; 
+        }
+      }
+
+      displayProducts(filteredProducts);
+    }
+
+    function displayProducts(filteredProducts) {
+      productList.innerHTML = '';
+
+      filteredProducts.forEach((product, index) => {
+        const adjustedIndex = index + categoryIndices;
+
+        const card = document.createElement("div");
+        card.className = "bg-white border rounded-xl shadow p-4 text-center flex flex-col items-center";
+
+        card.innerHTML = `
+          <img src="${product.image}" class="w-25 h-25 object-cover rounded mb-3"/>
+          <p class="text-lg font-serif italic font-semibold text-yellow-900">${product.name}</p>
+          <p class="text-md text-gray-600 mb-2">₱${product.price}</p>
+          <input type="number" min="1" value="1" id="qty-${adjustedIndex}" class="w-20 border rounded px-2 py-1 text-center mb-2">
+          <button onclick="addToCart(${adjustedIndex})" class="bg-yellow-900 hover:bg-yellow-800 text-white px-4 py-2 rounded text-sm">
+            Add to Order
+          </button>
+        `;
+        productList.appendChild(card);
+      });
+    }
+
+    function addToCart(adjustedIndex) {
+      const qtyInput = document.querySelector(`#qty-${adjustedIndex}`);
+      let quantity = parseInt(qtyInput.value);
+
+      if (!quantity || quantity < 1) {
+        alert("Please enter a valid quantity.");
+        return;
+      }
+
+      const existingIndex = order.findIndex(item => item.index === adjustedIndex);
+      if (existingIndex >= 0) {
+        order[existingIndex].quantity += quantity; 
+      } else {
+        order.push({ index: adjustedIndex, quantity }); 
+      }
+
+      updateOrderSummary();
+    }
+
+    function updateOrderSummary() {
+      orderSummary.innerHTML = "";
+      let total = 0;
+
+      order.forEach(item => {
+        const product = products[item.index];
+        const subtotal = product.price * item.quantity;
+        total += subtotal;
+
+        const summaryItem = document.createElement("div");
+        summaryItem.className = "border p-4 rounded-lg flex flex-col justify-between h-24";
+
+        summaryItem.innerHTML = `
+          <div class="text-lg font-semibold text-yellow-900">${product.name}</div>
+          <div class="flex justify-between items-end mt-auto">
+            <div class="text-sm text-gray-600">Qty: ${item.quantity}</div>
+            <div class="text-sm text-gray-600">₱${subtotal}</div>
+          </div>
+        `;
+        orderSummary.appendChild(summaryItem);
+      });
+
+      totalDisplay.textContent = total;
+    }
+
+    function placeOrder() {
+      const total = parseFloat(totalDisplay.textContent);
+      const cashInput = document.querySelector("#cash");
+      const cash = parseFloat(cashInput.value);
+
+      if (order.length === 0) return alert("There's no items in the cart.");
+      if (isNaN(cash) || cash <= 0) return alert("Please enter a valid cash amount.");
+      if (cash < total) return alert(`Insufficient cash. You need ₱${total - cash} more, please try again!`);
+
+      const change = cash - total;
+
+      alert(`Thank you for ordering! Here's your ₱${change} change.`);
+
+      const receiptData = {
+        order,
+        total,
+        cash,
+        change,
+        timestamp: new Date().toLocaleString()
+      };
+
+      localStorage.setItem("receiptData", JSON.stringify(receiptData));
+      window.location.href = "receipt.html"; 
+    }
+
+    displayProducts(products);
+  </script>
+</body>
+</html>
