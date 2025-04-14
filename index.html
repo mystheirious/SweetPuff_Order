@@ -11,9 +11,11 @@
   <div class="max-w-7xl mx-auto p-6">
     <div class="bg-white rounded-2xl shadow-2xl p-6 flex flex-col lg:flex-row gap-6">
 
+      <!-- left section: product menu -->
       <div class="w-full lg:w-4/6">
         <img src="images/logo.svg" alt="Sweet Puff Logo" class="h-12 w-auto mb-2 mt-2">
         <div class="flex justify-between items-center">
+          <!-- menu and filter buttons -->
           <p class="mt-4 text-3xl font-serif font-semibold text-yellow-900">Menu</p>
           <div class="filter-buttons mt-4 font-serif flex flex-wrap gap-2 justify-center lg:justify-start text-sm">
             <button onclick="filterMenu('all', this)" class="filter-btn shadow-inner px-4 py-2 rounded transition-all duration-300 hover:bg-rose-100 bg-rose-50">All</button>
@@ -22,17 +24,22 @@
             <button onclick="filterMenu('drinks', this)" class="filter-btn shadow-inner px-4 py-2 rounded transition-all duration-300 hover:bg-rose-100">Drinks</button>
           </div>
         </div>
+        <!-- container where products will be displayed -->
         <div id="product-list" class="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-8"></div>
       </div>
 
+      <!-- right section: order summary -->
       <div class="w-full lg:w-2/6 bg-orange-50 rounded-xl p-5 shadow-inner">
+        <!-- list of ordered items and their total -->
         <p class="text-2xl font-serif font-semibold mb-4 text-yellow-900">Ordered Items</p>
         <div id="order-summary" class="space-y-2 mb-4 pr-2 max-h-72 overflow-y-auto"></div>
         <p class="text-lg font-semibold">Total: ₱<span id="total">0</span></p>
         <div class="mt-4">
+          <!-- input for cash payment -->
           <label for="cash" class="block mb-1 text-md font-medium text-yellow-900">Cash</label>
           <input type="number" id="cash" class="w-full border rounded px-3 py-2 focus:outline-none" placeholder="Enter cash amount">
         </div>
+        <!-- button to confirm order -->
         <button onclick="placeOrder()" class="mt-4 w-full bg-yellow-900 hover:bg-yellow-800 text-white font-semibold py-2 px-4 rounded-lg transition">
           Place Order
         </button>
@@ -41,6 +48,7 @@
   </div>
 
   <script>
+    // list of available products
     const products = [
       { name: "White Dream", price: 75, category:"cookies", image: "images/cm1.png" },
       { name: "Red Velvet", price: 75, category:"cookies", image: "images/cm2.png" },
@@ -63,6 +71,7 @@
     const orderSummary = document.querySelector("#order-summary");
     const totalDisplay = document.querySelector("#total");
 
+    // stores added items in the order & currently filtered products by shifting index based on category
     let order = [];
     let filteredProducts = products;
     let categoryIndices = 0; 
@@ -92,6 +101,7 @@
       displayProducts(filteredProducts);
     }
 
+    // displays products on the menu
     function displayProducts(filteredProducts) {
       productList.innerHTML = '';
 
@@ -114,6 +124,7 @@
       });
     }
 
+    // adds selected product and quantity to the cart
     function addToCart(adjustedIndex) {
       const qtyInput = document.querySelector(`#qty-${adjustedIndex}`);
       let quantity = parseInt(qtyInput.value);
@@ -133,6 +144,7 @@
       updateOrderSummary();
     }
 
+    // updates the order summary
     function updateOrderSummary() {
       orderSummary.innerHTML = "";
       let total = 0;
@@ -158,6 +170,7 @@
       totalDisplay.textContent = total;
     }
 
+    // confirms the order, calculates change, and stores receipt
     function placeOrder() {
       const total = parseFloat(totalDisplay.textContent);
       const cashInput = document.querySelector("#cash");
@@ -169,8 +182,9 @@
 
       const change = cash - total;
 
-      alert(`Thank you for ordering! Here's your ₱${change} change.`);
+      alert(`Thank you for ordering! Here's your ₱${change}.`);
 
+      // prepare the order data to store as a receipt and saves it on local storage to be accessed
       const receiptData = {
         order,
         total,
